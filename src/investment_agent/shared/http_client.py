@@ -5,7 +5,11 @@ configure its own `httpx.AsyncClient`. Contains no knowledge of what data any
 particular internal API returns - that parsing lives in the plugin's adapter.
 """
 
+import logging
+
 import httpx
+
+logger = logging.getLogger(__name__)
 
 
 class InternalApiClient:
@@ -24,7 +28,9 @@ class InternalApiClient:
         """GET `path` and return the parsed JSON body, raising on non-2xx responses."""
         response = await self._client.get(path, params=params)
         response.raise_for_status()
-        return response.json()
+        body = response.json()
+        logger.debug("GET %s response: %s", response.url, body)
+        return body
 
     async def aclose(self) -> None:
         """Release the underlying connection pool. Call once at app shutdown."""

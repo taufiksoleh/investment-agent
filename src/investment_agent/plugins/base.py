@@ -68,8 +68,10 @@ class AssetAnalysisPlugin(ABC):
         try:
             reasoning = json.loads(raw_response)
         except json.JSONDecodeError as exc:
+            snippet = raw_response[:200] or "<empty>"
             raise AgentResponseParsingError(
-                f"Agent response for '{self.slug}' was not valid JSON: {exc}"
+                f"Agent response for '{self.slug}' was not valid JSON: {exc}. "
+                f"Raw response started with: {snippet!r}"
             ) from exc
 
         try:

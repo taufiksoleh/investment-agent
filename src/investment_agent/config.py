@@ -7,6 +7,7 @@ against different internal APIs / API keys purely through env vars.
 
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,7 +16,10 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    anthropic_api_key: str = ""
+    # Named distinctly from ANTHROPIC_API_KEY (which the Claude Agent SDK's
+    # CLI subprocess expects, see agent_client.py) so it doesn't collide with
+    # a developer's own ANTHROPIC_API_KEY set locally for the Claude Code CLI.
+    anthropic_api_key: str = Field(default="", validation_alias="INVESTMENT_AGENT_ANTHROPIC_API_KEY")
     # Defaults to BMoney's public bullion price API (the gold plugin's data
     # source); override per-environment/asset-class needs via env var.
     internal_price_api_url: str = "https://api.bmoney.id"

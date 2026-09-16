@@ -20,7 +20,7 @@ request flow, and how to add a new asset class.
 ## Setup
 
 ```bash
-cp .env.example .env   # fill in ANTHROPIC_API_KEY and INTERNAL_PRICE_API_URL
+cp .env.example .env   # fill in INVESTMENT_AGENT_ANTHROPIC_API_KEY and INTERNAL_PRICE_API_URL
 uv sync
 ```
 

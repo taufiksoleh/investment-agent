@@ -13,6 +13,7 @@ COPY pyproject.toml uv.lock* ./
 RUN uv sync --frozen --no-install-project --no-dev || uv sync --no-install-project --no-dev
 
 COPY src ./src
+COPY README.md ./
 RUN uv sync --no-dev
 
 EXPOSE 8000

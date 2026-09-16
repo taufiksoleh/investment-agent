@@ -5,8 +5,12 @@ class. Plugins raise these same exceptions so the API layer has one place to
 translate errors into HTTP responses, regardless of which plugin raised them.
 """
 
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+
+logger = logging.getLogger(__name__)
 
 
 class InvestmentAgentError(Exception):
@@ -46,16 +50,19 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(PluginNotFoundError)
     async def _handle_plugin_not_found(request: Request, exc: PluginNotFoundError) -> JSONResponse:
+        logger.warning("%s", exc)
         return JSONResponse(status_code=404, content={"detail": str(exc)})
 
     @app.exception_handler(UpstreamPriceUnavailableError)
     async def _handle_upstream_unavailable(
         request: Request, exc: UpstreamPriceUnavailableError
     ) -> JSONResponse:
+        logger.error("%s", exc, exc_info=exc)
         return JSONResponse(status_code=502, content={"detail": str(exc)})
 
     @app.exception_handler(AgentResponseParsingError)
     async def _handle_agent_parsing_error(
         request: Request, exc: AgentResponseParsingError
     ) -> JSONResponse:
+        logger.error("%s", exc, exc_info=exc)
         return JSONResponse(status_code=502, content={"detail": str(exc)})
