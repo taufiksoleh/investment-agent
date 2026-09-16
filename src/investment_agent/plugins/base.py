@@ -7,11 +7,16 @@ touching the API layer, only writing a new plugin against this same contract.
 """
 
 import json
+import re
 from abc import ABC, abstractmethod
 
 from investment_agent.shared.agent_client import ClaudeAgentClient
 from investment_agent.shared.base_models import AssetAnalysis, PriceSnapshot
 from investment_agent.shared.exceptions import AgentResponseParsingError
+
+# Models routinely wrap JSON answers in a markdown fence (```json ... ```)
+# even when told to return raw JSON; strip that before parsing.
+_CODE_FENCE_RE = re.compile(r"^```(?:json)?\s*\n?(.*?)\n?```$", re.DOTALL)
 
 
 class AssetAnalysisPlugin(ABC):
@@ -65,8 +70,12 @@ class AssetAnalysisPlugin(ABC):
         self, price_snapshot: PriceSnapshot, raw_response: str
     ) -> AssetAnalysis:
         """Merge the verified price with the agent's reasoning JSON into one `AssetAnalysis`."""
+        stripped = raw_response.strip()
+        fence_match = _CODE_FENCE_RE.match(stripped)
+        json_text = fence_match.group(1) if fence_match else stripped
+
         try:
-            reasoning = json.loads(raw_response)
+            reasoning = json.loads(json_text)
         except json.JSONDecodeError as exc:
             snippet = raw_response[:200] or "<empty>"
             raise AgentResponseParsingError(
