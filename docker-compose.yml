@@ -1,0 +1,11 @@
+services:
+  investment-agent:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY in your .env}
+      INTERNAL_PRICE_API_URL: ${INTERNAL_PRICE_API_URL:-http://localhost:9000}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./src:/app/src
