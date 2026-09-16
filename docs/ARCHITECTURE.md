@@ -22,8 +22,10 @@ plugins/base.py: AssetAnalysisPlugin.analyze()   <- generic, same for every plug
         │
         ├─ 1. await self.get_current_price()      -> plugins/gold/adapters.py
         │       InternalGoldPriceAdapter.fetch_price()
-        │       └─ httpx call to the internal price API (shared/http_client.py)
-        │       └─ returns a generic PriceSnapshot (never a GoldPrice)
+        │       └─ httpx call to the price API (shared/http_client.py) - currently
+        │          BMoney's public bullion price API (GET /bullion/prices),
+        │          configured via INTERNAL_PRICE_API_URL
+        │       └─ returns a generic PriceSnapshot (never a raw GoldPriceEntry)
         │
         ├─ 2. self.build_prompt(price_snapshot)    -> plugins/gold/prompts.py
         │       build_gold_prompt() composes a prompt embedding the verified

@@ -1,9 +1,10 @@
 """Gold-specific data shapes.
 
-`GoldPrice` mirrors the internal price API's payload exactly, so a change in
-that API only touches this file. `GoldAnalysis` extends the shared
-`AssetAnalysis` as the place to add gold-only output fields later, without
-affecting the base schema other plugins rely on.
+`GoldPriceEntry`/`BullionPriceResponse` mirror BMoney's public bullion price
+API payload exactly (`GET /bullion/prices?period=...`), so a change in that
+API only touches this file. `GoldAnalysis` extends the shared `AssetAnalysis`
+as the place to add gold-only output fields later, without affecting the
+base schema other plugins rely on.
 """
 
 from datetime import datetime
@@ -13,16 +14,23 @@ from pydantic import BaseModel
 from investment_agent.shared.base_models import AssetAnalysis
 
 
-class GoldPrice(BaseModel):
-    """Raw response shape from the internal gold price endpoint.
+class GoldPriceEntry(BaseModel):
+    """One day's OHLC bullion price record, in IDR per gram.
 
-    Priced in IDR per gram - the convention used by Indonesian gold retailers
-    (Antam, Pegadaian, UBS), not USD per troy ounce.
+    Only the fields this app actually uses are declared - the upstream
+    response has more (installment prices, markup values, etc.) that
+    pydantic silently ignores.
     """
 
-    price_idr_per_gram: float
-    change_pct_24h: float | None = None
-    as_of: datetime
+    date: str
+    last_updated_at: datetime
+    close_buy_price: float
+
+
+class BullionPriceResponse(BaseModel):
+    """Envelope returned by `GET /bullion/prices`."""
+
+    data: list[GoldPriceEntry]
 
 
 class GoldAnalysis(AssetAnalysis):
