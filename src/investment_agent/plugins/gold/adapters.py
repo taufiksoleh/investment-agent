@@ -14,7 +14,13 @@ from investment_agent.shared.http_client import InternalApiClient
 
 
 class InternalGoldPriceAdapter:
-    """Fetches the current gold price from the bullion price API."""
+    """Fetches the current gold price from the bullion price API.
+
+    The API's `period` query param accepts: "one_week", "one_month",
+    "three_month", "one_year", "all_time" - all return the same daily-OHLC
+    shape, just over a longer window. No auth is required for this endpoint
+    (verified directly); it's read-only public bullion price data.
+    """
 
     def __init__(
         self,
