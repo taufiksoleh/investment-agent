@@ -37,8 +37,8 @@ def fake_agent_client() -> FakeAgentClient:
 @pytest.fixture
 def sample_price_snapshot() -> PriceSnapshot:
     return PriceSnapshot(
-        price=2400.5,
+        price=1_985_000.0,
         change_pct=1.2,
-        currency="USD",
+        currency="IDR",
         as_of=datetime(2026, 1, 1, tzinfo=UTC),
     )

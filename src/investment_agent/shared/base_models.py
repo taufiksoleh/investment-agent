@@ -29,7 +29,7 @@ class PriceSnapshot(BaseModel):
 
     price: float
     change_pct: float | None = None
-    currency: str = "USD"
+    currency: str = "IDR"
     as_of: datetime
 
 

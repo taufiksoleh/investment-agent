@@ -14,7 +14,7 @@ async def test_fetch_price_normalizes_internal_payload() -> None:
         return_value=Response(
             200,
             json={
-                "price_usd_per_ounce": 2450.75,
+                "price_idr_per_gram": 1_985_000.0,
                 "change_pct_24h": -0.8,
                 "as_of": "2026-01-01T00:00:00Z",
             },
@@ -25,6 +25,6 @@ async def test_fetch_price_normalizes_internal_payload() -> None:
 
     snapshot = await adapter.fetch_price()
 
-    assert snapshot.price == 2450.75
+    assert snapshot.price == 1_985_000.0
     assert snapshot.change_pct == -0.8
-    assert snapshot.currency == "USD"
+    assert snapshot.currency == "IDR"

@@ -26,8 +26,8 @@ class InternalGoldPriceAdapter:
         payload = await self._http_client.get_json(self._endpoint)
         gold_price = GoldPrice.model_validate(payload)
         return PriceSnapshot(
-            price=gold_price.price_usd_per_ounce,
+            price=gold_price.price_idr_per_gram,
             change_pct=gold_price.change_pct_24h,
-            currency="USD",
+            currency="IDR",
             as_of=gold_price.as_of,
         )

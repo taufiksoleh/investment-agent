@@ -14,9 +14,13 @@ from investment_agent.shared.base_models import AssetAnalysis
 
 
 class GoldPrice(BaseModel):
-    """Raw response shape from the internal gold price endpoint."""
+    """Raw response shape from the internal gold price endpoint.
 
-    price_usd_per_ounce: float
+    Priced in IDR per gram - the convention used by Indonesian gold retailers
+    (Antam, Pegadaian, UBS), not USD per troy ounce.
+    """
+
+    price_idr_per_gram: float
     change_pct_24h: float | None = None
     as_of: datetime
 
