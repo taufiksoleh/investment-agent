@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     # Defaults to BMoney's public bullion price API (the gold gateway's data
     # source); override per-environment/asset-class needs via env var.
     internal_price_api_url: str = "https://api.bmoney.id"
+    # BMoney's mutual-fund products endpoint lists ~40 funds; the mutual
+    # fund gateway tracks exactly one (mirrors gold tracking one commodity).
+    # Defaults to Schroder Dana Prestasi Plus, a long-established equity
+    # fund present in BMoney's product list - override per deployment.
+    mutual_fund_isin_code: str = Field(
+        default="IDN000000809", validation_alias="INVESTMENT_AGENT_MUTUAL_FUND_ISIN_CODE"
+    )
     log_level: str = "INFO"
 
 

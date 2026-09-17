@@ -14,6 +14,8 @@ from investment_agent.api.middleware import add_request_id_middleware
 from investment_agent.api.router import router
 from investment_agent.gateways.gold.adapter import InternalGoldPriceAdapter
 from investment_agent.gateways.gold.gateway import GoldGateway
+from investment_agent.gateways.mutual_fund.adapter import InternalMutualFundPriceAdapter
+from investment_agent.gateways.mutual_fund.gateway import MutualFundGateway
 from investment_agent.gateways.registry import GatewayRegistry
 from investment_agent.infrastructure.agent_client import ClaudeAgentClient
 from investment_agent.infrastructure.config import Settings, get_settings
@@ -34,6 +36,15 @@ def _build_registry(settings: Settings) -> GatewayRegistry:
         price_adapter=InternalGoldPriceAdapter(internal_api_client),
     )
     registry.register(gold_gateway)
+
+    # Same BMoney domain as gold, different endpoint - shares internal_api_client.
+    mutual_fund_gateway = MutualFundGateway(
+        agent_client=agent_client,
+        price_adapter=InternalMutualFundPriceAdapter(
+            internal_api_client, isin_code=settings.mutual_fund_isin_code
+        ),
+    )
+    registry.register(mutual_fund_gateway)
 
     # To add a new asset class (e.g. stock): build its adapter + gateway here
     # and call registry.register(...) - no other file needs to change.
