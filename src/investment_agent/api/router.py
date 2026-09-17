@@ -9,7 +9,7 @@ requires touching this file.
 from fastapi import APIRouter, Depends, Request
 
 from investment_agent.plugins.registry import PluginRegistry
-from investment_agent.shared.base_models import AssetAnalysis, AssetNews
+from investment_agent.shared.base_models import AssetAnalysis
 
 router = APIRouter()
 
@@ -31,17 +31,3 @@ async def analyze_asset(
     """
     plugin = registry.get(asset_type)
     return await plugin.analyze()
-
-
-@router.get("/analyze/{asset_type}/news", response_model=AssetNews)
-async def get_asset_news(
-    asset_type: str,
-    registry: PluginRegistry = Depends(get_registry),
-) -> AssetNews:
-    """Return recent news relevant to `asset_type` (e.g. "gold"), gathered via web search.
-
-    Raises a 404 when `asset_type` has no registered plugin, or when the
-    plugin hasn't opted into news support (via `NewsNotSupportedError`).
-    """
-    plugin = registry.get(asset_type)
-    return await plugin.get_news()

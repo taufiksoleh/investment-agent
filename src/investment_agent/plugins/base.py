@@ -9,11 +9,10 @@ touching the API layer, only writing a new plugin against this same contract.
 import json
 import re
 from abc import ABC, abstractmethod
-from datetime import UTC, datetime
 
 from investment_agent.shared.agent_client import ClaudeAgentClient
-from investment_agent.shared.base_models import AssetAnalysis, AssetNews, PriceSnapshot
-from investment_agent.shared.exceptions import AgentResponseParsingError, NewsNotSupportedError
+from investment_agent.shared.base_models import AssetAnalysis, PriceSnapshot
+from investment_agent.shared.exceptions import AgentResponseParsingError
 
 # Models routinely wrap JSON answers in a markdown fence (```json ... ```)
 # even when told to return raw JSON; strip that before parsing.
@@ -56,15 +55,6 @@ class AssetAnalysisPlugin(ABC):
         `price_change_pct` are filled in from `price_snapshot`, not the agent.
         """
 
-    def build_news_prompt(self, price_snapshot: PriceSnapshot) -> str:
-        """Compose the prompt asking the agent for recent news about this asset.
-
-        Opt-in: unlike `get_current_price()`/`build_prompt()`, a plugin isn't
-        required to override this. The default raises `NewsNotSupportedError`,
-        which the API layer turns into a 404 for `/analyze/{slug}/news`.
-        """
-        raise NewsNotSupportedError(self.slug)
-
     async def analyze(self) -> AssetAnalysis:
         """Run the generic analysis flow: fetch price -> build prompt -> reason -> merge.
 
@@ -75,44 +65,6 @@ class AssetAnalysisPlugin(ABC):
         prompt = self.build_prompt(price_snapshot)
         raw_response = await self._agent_client.run_analysis(prompt)
         return self._parse_agent_response(price_snapshot, raw_response)
-
-    async def get_news(self) -> AssetNews:
-        """Run the generic news flow: fetch price (for context) -> build news
-        prompt -> reason via web search -> parse into `AssetNews`.
-
-        Raises `NewsNotSupportedError` (via `build_news_prompt()`) for any
-        plugin that hasn't opted in.
-        """
-        price_snapshot = await self.get_current_price()
-        prompt = self.build_news_prompt(price_snapshot)
-        raw_response = await self._agent_client.run_analysis(prompt)
-        return self._parse_news_response(raw_response)
-
-    def _parse_news_response(self, raw_response: str) -> AssetNews:
-        """Parse the agent's news JSON into an `AssetNews`, tagged with this plugin's slug."""
-        stripped = raw_response.strip()
-        fence_match = _CODE_FENCE_RE.match(stripped)
-        json_text = fence_match.group(1) if fence_match else stripped
-
-        try:
-            parsed = json.loads(json_text)
-        except json.JSONDecodeError as exc:
-            snippet = raw_response[:200] or "<empty>"
-            raise AgentResponseParsingError(
-                f"News response for '{self.slug}' was not valid JSON: {exc}. "
-                f"Raw response started with: {snippet!r}"
-            ) from exc
-
-        try:
-            return AssetNews(
-                slug=self.slug,
-                generated_at=datetime.now(UTC),
-                **parsed,
-            )
-        except (TypeError, ValueError) as exc:
-            raise AgentResponseParsingError(
-                f"News response for '{self.slug}' did not match the expected schema: {exc}"
-            ) from exc
 
     def _parse_agent_response(
         self, price_snapshot: PriceSnapshot, raw_response: str

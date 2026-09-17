@@ -49,24 +49,3 @@ class AssetAnalysis(BaseModel):
     recommendation: Recommendation
     confidence_level: float = Field(ge=0, le=1)
     risk_scenario: str
-
-
-class NewsItem(BaseModel):
-    """One news item surfaced by an agent's web search for a given asset."""
-
-    title: str
-    summary: str
-    source: str | None = None
-    published_at: str | None = None
-
-
-class AssetNews(BaseModel):
-    """Common news output every asset-class plugin returns from `get_news()`.
-
-    Same rationale as `AssetAnalysis`: an identical shape across asset types
-    is what lets `/analyze/{asset_type}/news` stay a single generic endpoint.
-    """
-
-    slug: str
-    generated_at: datetime
-    items: list[NewsItem] = Field(default_factory=list)

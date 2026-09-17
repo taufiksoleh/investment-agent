@@ -7,7 +7,7 @@ data and "what" prompt, never "how" to run the analysis.
 
 from investment_agent.plugins.base import AssetAnalysisPlugin
 from investment_agent.plugins.gold.adapters import InternalGoldPriceAdapter
-from investment_agent.plugins.gold.prompts import build_gold_news_prompt, build_gold_prompt
+from investment_agent.plugins.gold.prompts import build_gold_prompt
 from investment_agent.shared.agent_client import ClaudeAgentClient
 from investment_agent.shared.base_models import PriceSnapshot
 
@@ -31,6 +31,3 @@ class GoldAnalysisPlugin(AssetAnalysisPlugin):
 
     def build_prompt(self, price_snapshot: PriceSnapshot) -> str:
         return build_gold_prompt(price_snapshot)
-
-    def build_news_prompt(self, price_snapshot: PriceSnapshot) -> str:
-        return build_gold_news_prompt(price_snapshot)
