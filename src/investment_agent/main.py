@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from investment_agent.api.middleware import add_request_id_middleware
 from investment_agent.api.router import router
 from investment_agent.gateways.gold.adapter import InternalGoldPriceAdapter
 from investment_agent.gateways.gold.gateway import GoldGateway
@@ -53,6 +54,7 @@ def create_app() -> FastAPI:
     """Build the FastAPI application with routes and error handlers wired in."""
     app = FastAPI(title="Investment Agent", lifespan=lifespan)
     register_exception_handlers(app)
+    add_request_id_middleware(app)
     app.include_router(router)
     return app
 

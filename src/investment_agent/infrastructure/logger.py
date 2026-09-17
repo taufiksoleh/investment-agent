@@ -16,6 +16,9 @@ def configure_logging(level: str = "INFO") -> None:
     logging.basicConfig(format="%(message)s", level=numeric_level)
     structlog.configure(
         processors=[
+            # Pulls in whatever api/middleware.py bound for this request
+            # (e.g. request_id) so every log line during that request carries it.
+            structlog.contextvars.merge_contextvars,
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.add_log_level,
             structlog.processors.JSONRenderer(),

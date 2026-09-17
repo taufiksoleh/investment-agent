@@ -14,6 +14,12 @@ from investment_agent.gateways.registry import GatewayRegistry
 router = APIRouter()
 
 
+@router.get("/healthz")
+async def healthz() -> dict[str, str]:
+    """Liveness endpoint for orchestrator readiness checks (load balancers, k8s, ECS)."""
+    return {"status": "ok"}
+
+
 def get_registry(request: Request) -> GatewayRegistry:
     """Fetch the app-wide gateway registry set up at startup (see `main.py`)."""
     return request.app.state.gateway_registry
