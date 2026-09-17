@@ -1,5 +1,5 @@
 """Shared test fixtures: fakes for the two external dependencies every
-plugin is injected with, so tests never hit a real internal API or the
+gateway is injected with, so tests never hit a real internal API or the
 Claude Agent SDK."""
 
 import json
@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from investment_agent.shared.base_models import PriceSnapshot
+from investment_agent.domain.models import PriceSnapshot
 
 
 class FakeAgentClient:
