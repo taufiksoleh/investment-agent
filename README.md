@@ -1,11 +1,11 @@
 # Investment Agent
 
-Plugin-based backend API for multi-asset investment analysis (starting with
-gold), combining verified prices from an internal API with reasoning from the
-Claude Agent SDK.
+Clean-Architecture-style backend API for multi-asset investment analysis
+(starting with gold), combining verified prices from an internal API with
+reasoning from the Claude Agent SDK.
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the plugin contract,
-request flow, and how to add a new asset class.
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the use-case/gateway
+contract, request flow, and how to add a new asset class.
 
 ## Stack
 
@@ -34,6 +34,7 @@ Then:
 
 ```bash
 curl http://localhost:8000/analyze/gold
+curl http://localhost:8000/healthz
 ```
 
 ## Run with Docker
@@ -57,4 +58,4 @@ uv run ruff check .
 ## Adding a new asset class
 
 See "Adding a new asset class" in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-The `gold/` plugin folder is the template to copy.
+The `gateways/gold/` folder is the template to copy.
