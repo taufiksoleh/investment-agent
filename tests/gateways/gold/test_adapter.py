@@ -64,3 +64,15 @@ async def test_fetch_price_raises_when_upstream_has_no_data() -> None:
 
     with pytest.raises(UpstreamPriceUnavailableError):
         await adapter.fetch_price()
+
+
+@respx.mock
+async def test_fetch_price_raises_upstream_error_on_http_failure() -> None:
+    respx.get("http://internal-api.test/bullion/prices").mock(
+        return_value=Response(503, json={"detail": "service unavailable"})
+    )
+    http_client = InternalApiClient(base_url="http://internal-api.test")
+    adapter = InternalGoldPriceAdapter(http_client)
+
+    with pytest.raises(UpstreamPriceUnavailableError):
+        await adapter.fetch_price()

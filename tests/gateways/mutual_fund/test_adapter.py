@@ -94,11 +94,31 @@ async def test_fetch_price_raises_when_history_is_empty() -> None:
 
 @respx.mock
 async def test_fetch_price_raises_upstream_error_for_unknown_product() -> None:
+    # Detail and NAV history are fetched concurrently, so both must be
+    # mocked even though only the detail call is expected to fail here.
     respx.get("http://internal-api.test/_exclusive/bmoney/mutual-fund/products/999999").mock(
+        return_value=Response(404, json={"detail": "not found"})
+    )
+    respx.get("http://internal-api.test/_exclusive/bmoney/mutual-fund/products/999999/navs").mock(
         return_value=Response(404, json={"detail": "not found"})
     )
     http_client = InternalApiClient(base_url="http://internal-api.test")
     adapter = InternalMutualFundPriceAdapter(http_client, product_id=999999)
+
+    with pytest.raises(UpstreamPriceUnavailableError):
+        await adapter.fetch_price()
+
+
+@respx.mock
+async def test_fetch_price_raises_upstream_error_when_navs_endpoint_fails() -> None:
+    respx.get("http://internal-api.test/_exclusive/bmoney/mutual-fund/products/115").mock(
+        return_value=Response(200, json=PRODUCT_DETAIL_RESPONSE)
+    )
+    respx.get("http://internal-api.test/_exclusive/bmoney/mutual-fund/products/115/navs").mock(
+        return_value=Response(503, json={"detail": "service unavailable"})
+    )
+    http_client = InternalApiClient(base_url="http://internal-api.test")
+    adapter = InternalMutualFundPriceAdapter(http_client, product_id=115)
 
     with pytest.raises(UpstreamPriceUnavailableError):
         await adapter.fetch_price()

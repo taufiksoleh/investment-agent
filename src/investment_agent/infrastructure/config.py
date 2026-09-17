@@ -19,7 +19,9 @@ class Settings(BaseSettings):
     # Named distinctly from ANTHROPIC_API_KEY (which the Claude Agent SDK's
     # CLI subprocess expects, see agent_client.py) so it doesn't collide with
     # a developer's own ANTHROPIC_API_KEY set locally for the Claude Code CLI.
-    anthropic_api_key: str = Field(default="", validation_alias="INVESTMENT_AGENT_ANTHROPIC_API_KEY")
+    anthropic_api_key: str = Field(
+        default="", validation_alias="INVESTMENT_AGENT_ANTHROPIC_API_KEY"
+    )
     # Defaults to BMoney's public bullion price API (the gold gateway's data
     # source); override per-environment/asset-class needs via env var.
     internal_price_api_url: str = "https://api.bmoney.id"

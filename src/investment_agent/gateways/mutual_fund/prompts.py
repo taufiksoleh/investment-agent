@@ -8,7 +8,7 @@ to look up or second-guess the NAV itself.
 
 from investment_agent.domain.models import PriceSnapshot
 from investment_agent.gateways.mutual_fund.models import MutualFundProduct
-from investment_agent.infrastructure.formatting import format_rupiah
+from investment_agent.infrastructure.formatting import describe_change_pct, format_rupiah
 
 
 def _format_nav(value: float, currency: str) -> str:
@@ -17,20 +17,10 @@ def _format_nav(value: float, currency: str) -> str:
     return f"{currency} {value:,.4f}"
 
 
-def _describe_change(change_pct: float | None) -> str:
-    if change_pct is None:
-        return "tidak tersedia"
-    if change_pct > 0:
-        return f"naik {change_pct:.2f}%"
-    if change_pct < 0:
-        return f"turun {abs(change_pct):.2f}%"
-    return "stabil (0%)"
-
-
 def build_mutual_fund_prompt(price_snapshot: PriceSnapshot, product: MutualFundProduct) -> str:
     """Build the reasoning prompt sent to the Claude Agent SDK for mutual fund analysis."""
     formatted_nav = _format_nav(price_snapshot.price, price_snapshot.currency)
-    change_desc = _describe_change(price_snapshot.change_pct)
+    change_desc = describe_change_pct(price_snapshot.change_pct)
 
     context = (
         "Anda adalah analis reksadana berpengalaman yang melayani investor ritel reksadana "

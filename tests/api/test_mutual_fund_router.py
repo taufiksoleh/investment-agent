@@ -86,7 +86,11 @@ def test_analyze_specific_mutual_fund_product(monkeypatch) -> None:
 @respx.mock
 def test_analyze_unknown_product_returns_502(monkeypatch) -> None:
     monkeypatch.setattr(ClaudeAgentClient, "run_analysis", _fake_run_analysis)
+    # Detail and NAV history are fetched concurrently, so both must be mocked.
     respx.get("https://api.bmoney.id/_exclusive/bmoney/mutual-fund/products/999999").mock(
+        return_value=Response(404, json={"detail": "not found"})
+    )
+    respx.get("https://api.bmoney.id/_exclusive/bmoney/mutual-fund/products/999999/navs").mock(
         return_value=Response(404, json={"detail": "not found"})
     )
 

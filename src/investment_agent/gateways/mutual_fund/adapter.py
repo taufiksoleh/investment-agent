@@ -12,6 +12,7 @@ the gateway ends up representing one fund (mirrors gold representing one
 specific commodity), configured via `Settings.mutual_fund_product_id`.
 """
 
+import asyncio
 from datetime import UTC, datetime
 
 import httpx
@@ -60,19 +61,21 @@ class InternalMutualFundPriceAdapter:
         `Analyzable.analyze()` stay asset-agnostic: it only ever deals with
         `PriceSnapshot`, never the raw product/NAV-history shapes.
         """
+        # Fetched concurrently - neither response depends on the other.
         try:
-            detail_payload = await self._http_client.get_json(
-                f"{self._endpoint}/{self._product_id}"
+            detail_payload, navs_payload = await asyncio.gather(
+                self._http_client.get_json(f"{self._endpoint}/{self._product_id}"),
+                self._http_client.get_json(f"{self._endpoint}/{self._product_id}/navs"),
             )
         except httpx.HTTPStatusError as exc:
             raise UpstreamPriceUnavailableError(
-                f"Mutual fund product API returned no data for product '{self._product_id}': {exc}"
+                f"Mutual fund product API request failed for product '{self._product_id}': {exc}"
             ) from exc
+
         detail = MutualFundProductDetailResponse.model_validate(detail_payload)
         product = detail.data
         self.last_product = product
 
-        navs_payload = await self._http_client.get_json(f"{self._endpoint}/{self._product_id}/navs")
         history = MutualFundNavHistoryResponse.model_validate(navs_payload)
         if not history.data:
             raise UpstreamPriceUnavailableError(

@@ -71,6 +71,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         settings, app.state.agent_client, app.state.internal_api_client
     )
     yield
+    await app.state.internal_api_client.aclose()
 
 
 def create_app() -> FastAPI:

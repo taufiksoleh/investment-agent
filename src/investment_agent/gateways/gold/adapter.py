@@ -7,6 +7,8 @@ Currently backed by BMoney's public bullion price API
 so no currency conversion is needed.
 """
 
+import httpx
+
 from investment_agent.domain.models import PriceSnapshot
 from investment_agent.gateways.gold.models import BullionPriceResponse, GoldPriceEntry
 from investment_agent.infrastructure.exceptions import UpstreamPriceUnavailableError
@@ -41,7 +43,14 @@ class InternalGoldPriceAdapter:
         `Analyzable.analyze()` stay asset-agnostic: it only ever
         deals with `PriceSnapshot`, never the raw bullion API shape.
         """
-        payload = await self._http_client.get_json(self._endpoint, params={"period": self._period})
+        try:
+            payload = await self._http_client.get_json(
+                self._endpoint, params={"period": self._period}
+            )
+        except httpx.HTTPStatusError as exc:
+            raise UpstreamPriceUnavailableError(
+                f"Bullion price API request failed: {exc}"
+            ) from exc
         response = BullionPriceResponse.model_validate(payload)
         if not response.data:
             raise UpstreamPriceUnavailableError(

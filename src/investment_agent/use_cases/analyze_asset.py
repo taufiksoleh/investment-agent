@@ -93,7 +93,11 @@ class Analyzable(ABC):
                 price_change_pct=price_snapshot.change_pct,
                 **reasoning,
             )
-        except TypeError as exc:
+        except (TypeError, ValueError) as exc:
+            # TypeError: reasoning wasn't a mapping (e.g. a JSON array).
+            # ValueError: covers pydantic's ValidationError (a ValueError
+            # subclass) for a well-formed but wrong-shaped reasoning object
+            # (missing key, bad enum value, confidence_level out of range).
             raise AgentResponseParsingError(
                 f"Agent response for '{self.slug}' did not match the expected schema: {exc}"
             ) from exc

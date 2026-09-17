@@ -7,23 +7,13 @@ commentary), never to look up or second-guess the price itself.
 """
 
 from investment_agent.domain.models import PriceSnapshot
-from investment_agent.infrastructure.formatting import format_rupiah
-
-
-def _describe_change(change_pct: float | None) -> str:
-    if change_pct is None:
-        return "tidak tersedia"
-    if change_pct > 0:
-        return f"naik {change_pct:.2f}%"
-    if change_pct < 0:
-        return f"turun {abs(change_pct):.2f}%"
-    return "stabil (0%)"
+from investment_agent.infrastructure.formatting import describe_change_pct, format_rupiah
 
 
 def build_gold_prompt(price_snapshot: PriceSnapshot) -> str:
     """Build the reasoning prompt sent to the Claude Agent SDK for gold analysis."""
     formatted_price = format_rupiah(price_snapshot.price)
-    change_desc = _describe_change(price_snapshot.change_pct)
+    change_desc = describe_change_pct(price_snapshot.change_pct)
 
     context = (
         "Anda adalah analis pasar emas berpengalaman yang melayani investor ritel emas fisik "
