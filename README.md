@@ -1,5 +1,7 @@
 # Investment Agent
 
+[![CI](https://github.com/taufiksoleh/investment-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/taufiksoleh/investment-agent/actions/workflows/ci.yml)
+
 Clean-Architecture-style backend API for multi-asset investment analysis
 (starting with gold), combining verified prices from an internal API with
 reasoning from the Claude Agent SDK.
