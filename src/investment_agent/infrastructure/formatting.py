@@ -1,6 +1,6 @@
 """Generic value-formatting helpers shared across asset gateways.
 
-Any asset priced in Rupiah (gold today; stock, mutual_fund later) needs the
+Any asset priced in Rupiah (gold today; stock, mutual-fund later) needs the
 same currency formatting, so it lives here instead of being duplicated in
 each gateway's prompt module.
 """

@@ -22,7 +22,7 @@ class MutualFundGateway(Analyzable):
     specific commodity.
     """
 
-    slug = "mutual_fund"
+    slug = "mutual-fund"
     display_name = "Mutual Fund"
 
     def __init__(
