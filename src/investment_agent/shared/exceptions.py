@@ -41,6 +41,19 @@ class AgentResponseParsingError(InvestmentAgentError):
     """
 
 
+class NewsNotSupportedError(InvestmentAgentError):
+    """Raised when `/analyze/{asset_type}/news` is called on a plugin that
+    hasn't implemented `build_news_prompt()`.
+
+    News support is opt-in per plugin (unlike price + reasoning, which every
+    plugin must implement), so this is a 404 rather than a 500.
+    """
+
+    def __init__(self, asset_type: str) -> None:
+        self.asset_type = asset_type
+        super().__init__(f"Asset type '{asset_type}' does not support a news endpoint.")
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     """Wire every ``InvestmentAgentError`` subclass to an HTTP response.
 
@@ -66,3 +79,10 @@ def register_exception_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         logger.error("%s", exc, exc_info=exc)
         return JSONResponse(status_code=502, content={"detail": str(exc)})
+
+    @app.exception_handler(NewsNotSupportedError)
+    async def _handle_news_not_supported(
+        request: Request, exc: NewsNotSupportedError
+    ) -> JSONResponse:
+        logger.warning("%s", exc)
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
