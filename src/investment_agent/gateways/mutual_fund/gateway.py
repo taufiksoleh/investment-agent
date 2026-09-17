@@ -14,12 +14,13 @@ from investment_agent.use_cases.analyze_asset import Analyzable
 
 
 class MutualFundGateway(Analyzable):
-    """Gateway for one specific mutual fund, selected by ISIN code.
+    """Gateway for one specific mutual fund, selected by BMoney product id.
 
-    BMoney's products endpoint lists many funds; the ISIN configured on
-    `price_adapter` (see `Settings.mutual_fund_isin_code`) determines which
-    one this gateway represents - the same way `GoldGateway` represents one
-    specific commodity.
+    BMoney lists many funds; the product id configured on `price_adapter`
+    (see `Settings.mutual_fund_product_id` for the default gateway, or a
+    per-request id for `/analyze/mutual-fund/{product_id}`) determines
+    which one this gateway represents - the same way `GoldGateway`
+    represents one specific commodity.
     """
 
     slug = "mutual-fund"

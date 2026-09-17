@@ -1,13 +1,15 @@
 """Mutual-fund-specific data shapes.
 
-`MutualFundProduct`/`MutualFundProductsResponse` mirror BMoney's public
-mutual-fund products API payload
-(`GET /_exclusive/bmoney/mutual-fund/products`), so a change in that API
-only touches this file. Only the fields this app actually uses are
-declared - the upstream response has many more (fees, prospectus URLs,
-asset allocation breakdowns, etc.) that pydantic silently ignores.
+Mirrors BMoney's public mutual-fund API payloads - the products list
+(`GET .../products`), a single product's detail (`GET .../products/{id}`),
+its NAV history (`GET .../products/{id}/navs`), and the curated
+top-performers list (`GET .../products/top-performances`) - so a change in
+any of those APIs only touches this file. Only the fields this app
+actually uses are declared - the upstream responses have many more (fees,
+prospectus URLs, asset allocation breakdowns, etc.) that pydantic silently
+ignores.
 
-Unlike gold (one global commodity), this endpoint lists many distinct
+Unlike gold (one global commodity), these endpoints list many distinct
 funds; `MutualFundAnalysis` is the extension point for mutual-fund-only
 output fields added later, without affecting the base schema other
 gateways rely on.
@@ -58,6 +60,53 @@ class MutualFundProductsResponse(BaseModel):
     """Envelope returned by `GET /_exclusive/bmoney/mutual-fund/products`."""
 
     data: list[MutualFundProduct]
+
+
+class MutualFundProductDetailResponse(BaseModel):
+    """Envelope returned by `GET /_exclusive/bmoney/mutual-fund/products/{id}`.
+
+    Same `MutualFundProduct` shape as a list item, just wrapped as one
+    object under `data` instead of a list.
+    """
+
+    data: MutualFundProduct
+
+
+class MutualFundNavEntry(BaseModel):
+    """One day's NAV history point."""
+
+    date: str
+    value: float
+
+
+class MutualFundNavHistoryResponse(BaseModel):
+    """Envelope returned by `GET /_exclusive/bmoney/mutual-fund/products/{id}/navs`."""
+
+    data: list[MutualFundNavEntry]
+
+
+class TopPerformerEntry(BaseModel):
+    """One fund's entry in BMoney's curated top-performers list."""
+
+    id: int
+    fund_name: str
+    fund_type_text: str
+    nav: MutualFundNav
+    return_value: float
+    tags: list[str]
+
+
+class TopPerformersData(BaseModel):
+    """The curated list itself, plus BMoney's own disclaimer title."""
+
+    title: str
+    products: list[TopPerformerEntry]
+
+
+class TopPerformersResponse(BaseModel):
+    """Envelope returned by `GET /_exclusive/bmoney/mutual-fund/products/top-performances`."""
+
+    data: TopPerformersData
 
 
 class MutualFundAnalysis(AssetAnalysis):

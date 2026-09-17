@@ -11,6 +11,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from investment_agent.api.middleware import add_request_id_middleware
+from investment_agent.api.mutual_fund_router import router as mutual_fund_router
 from investment_agent.api.router import router
 from investment_agent.gateways.gold.adapter import InternalGoldPriceAdapter
 from investment_agent.gateways.gold.gateway import GoldGateway
@@ -24,12 +25,13 @@ from investment_agent.infrastructure.http_client import InternalApiClient
 from investment_agent.infrastructure.logger import configure_logging
 
 
-def _build_registry(settings: Settings) -> GatewayRegistry:
-    """Instantiate every gateway and its dependencies, then register them."""
+def _build_registry(
+    settings: Settings,
+    agent_client: ClaudeAgentClient,
+    internal_api_client: InternalApiClient,
+) -> GatewayRegistry:
+    """Instantiate every gateway and register it, sharing the given infra clients."""
     registry = GatewayRegistry()
-
-    agent_client = ClaudeAgentClient(api_key=settings.anthropic_api_key)
-    internal_api_client = InternalApiClient(base_url=settings.internal_price_api_url)
 
     gold_gateway = GoldGateway(
         agent_client=agent_client,
@@ -41,7 +43,7 @@ def _build_registry(settings: Settings) -> GatewayRegistry:
     mutual_fund_gateway = MutualFundGateway(
         agent_client=agent_client,
         price_adapter=InternalMutualFundPriceAdapter(
-            internal_api_client, isin_code=settings.mutual_fund_isin_code
+            internal_api_client, product_id=settings.mutual_fund_product_id
         ),
     )
     registry.register(mutual_fund_gateway)
@@ -54,10 +56,20 @@ def _build_registry(settings: Settings) -> GatewayRegistry:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Configure logging and build the gateway registry once, at startup."""
+    """Configure logging and build shared infra clients + the gateway registry once, at startup.
+
+    `agent_client`/`internal_api_client` are stored on `app.state` (not just
+    passed into `_build_registry()`) so routes that need a gateway built
+    per-request - e.g. `/analyze/mutual-fund/{product_id}` - can reuse the
+    same instances instead of opening new HTTP connections per request.
+    """
     settings = get_settings()
     configure_logging(settings.log_level)
-    app.state.gateway_registry = _build_registry(settings)
+    app.state.agent_client = ClaudeAgentClient(api_key=settings.anthropic_api_key)
+    app.state.internal_api_client = InternalApiClient(base_url=settings.internal_price_api_url)
+    app.state.gateway_registry = _build_registry(
+        settings, app.state.agent_client, app.state.internal_api_client
+    )
     yield
 
 
@@ -67,6 +79,7 @@ def create_app() -> FastAPI:
     register_exception_handlers(app)
     add_request_id_middleware(app)
     app.include_router(router)
+    app.include_router(mutual_fund_router)
     return app
 
 
