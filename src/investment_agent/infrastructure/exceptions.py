@@ -25,6 +25,22 @@ class GatewayNotFoundError(InvestmentAgentError):
         super().__init__(f"No gateway registered for asset type '{asset_type}'.")
 
 
+class UseCaseNotSupportedError(InvestmentAgentError):
+    """Raised when a registered gateway doesn't implement the requested use case.
+
+    Distinct from `GatewayNotFoundError`: the slug exists, but this
+    particular capability (e.g. news, once added) isn't one the gateway
+    opted into by inheriting from that use case's port.
+    """
+
+    def __init__(self, asset_type: str, use_case_name: str) -> None:
+        self.asset_type = asset_type
+        self.use_case_name = use_case_name
+        super().__init__(
+            f"Gateway for asset type '{asset_type}' does not support '{use_case_name}'."
+        )
+
+
 class UpstreamPriceUnavailableError(InvestmentAgentError):
     """Raised when a gateway's internal price source can't be reached or is invalid.
 
@@ -51,6 +67,13 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(GatewayNotFoundError)
     async def _handle_gateway_not_found(
         request: Request, exc: GatewayNotFoundError
+    ) -> JSONResponse:
+        logger.warning("%s", exc)
+        return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+    @app.exception_handler(UseCaseNotSupportedError)
+    async def _handle_use_case_not_supported(
+        request: Request, exc: UseCaseNotSupportedError
     ) -> JSONResponse:
         logger.warning("%s", exc)
         return JSONResponse(status_code=404, content={"detail": str(exc)})

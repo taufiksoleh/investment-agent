@@ -7,11 +7,12 @@ ports (see `analyze_asset.py`, and future use cases) that a gateway opts
 into independently by also inheriting from them.
 """
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from investment_agent.domain.models import PriceSnapshot
 
 
+@runtime_checkable
 class AssetGateway(Protocol):
     """Structural port: anything with this shape can be registered as a gateway."""
 
