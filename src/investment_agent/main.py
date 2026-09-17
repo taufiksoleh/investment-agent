@@ -15,7 +15,6 @@ from investment_agent.api.mutual_fund_router import router as mutual_fund_router
 from investment_agent.api.router import router
 from investment_agent.gateways.gold.adapter import InternalGoldPriceAdapter
 from investment_agent.gateways.gold.gateway import GoldGateway
-from investment_agent.gateways.mutual_fund.adapter import InternalMutualFundPriceAdapter
 from investment_agent.gateways.mutual_fund.gateway import MutualFundGateway
 from investment_agent.gateways.registry import GatewayRegistry
 from investment_agent.infrastructure.agent_client import ClaudeAgentClient
@@ -40,11 +39,11 @@ def _build_registry(
     registry.register(gold_gateway)
 
     # Same BMoney domain as gold, different endpoint - shares internal_api_client.
-    mutual_fund_gateway = MutualFundGateway(
-        agent_client=agent_client,
-        price_adapter=InternalMutualFundPriceAdapter(
-            internal_api_client, product_id=settings.mutual_fund_product_id
-        ),
+    # Uses the same factory /analyze/mutual-fund/{product_id} uses for a
+    # per-request gateway (api/mutual_fund_router.py), so there's one
+    # construction path for MutualFundGateway, not two.
+    mutual_fund_gateway = MutualFundGateway.for_product(
+        settings.mutual_fund_product_id, agent_client, internal_api_client
     )
     registry.register(mutual_fund_gateway)
 
