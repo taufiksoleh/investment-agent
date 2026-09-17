@@ -80,10 +80,11 @@ class Analyzable(ABC):
         try:
             reasoning = json.loads(json_text)
         except json.JSONDecodeError as exc:
-            snippet = raw_response[:200] or "<empty>"
+            context_start = max(exc.pos - 100, 0)
+            context = json_text[context_start : exc.pos + 100] or "<empty>"
             raise AgentResponseParsingError(
                 f"Agent response for '{self.slug}' was not valid JSON: {exc}. "
-                f"Raw response started with: {snippet!r}"
+                f"Text around the error: {context!r}"
             ) from exc
 
         try:
