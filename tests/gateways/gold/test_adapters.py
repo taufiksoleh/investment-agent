@@ -5,9 +5,9 @@ import pytest
 import respx
 from httpx import Response
 
-from investment_agent.plugins.gold.adapters import InternalGoldPriceAdapter
-from investment_agent.shared.exceptions import UpstreamPriceUnavailableError
-from investment_agent.shared.http_client import InternalApiClient
+from investment_agent.gateways.gold.adapters import InternalGoldPriceAdapter
+from investment_agent.infrastructure.exceptions import UpstreamPriceUnavailableError
+from investment_agent.infrastructure.http_client import InternalApiClient
 
 BULLION_PRICES_RESPONSE = {
     "data": [

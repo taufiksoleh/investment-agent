@@ -7,10 +7,10 @@ Currently backed by BMoney's public bullion price API
 so no currency conversion is needed.
 """
 
-from investment_agent.plugins.gold.models import BullionPriceResponse, GoldPriceEntry
-from investment_agent.shared.base_models import PriceSnapshot
-from investment_agent.shared.exceptions import UpstreamPriceUnavailableError
-from investment_agent.shared.http_client import InternalApiClient
+from investment_agent.domain.models import PriceSnapshot
+from investment_agent.gateways.gold.models import BullionPriceResponse, GoldPriceEntry
+from investment_agent.infrastructure.exceptions import UpstreamPriceUnavailableError
+from investment_agent.infrastructure.http_client import InternalApiClient
 
 
 class InternalGoldPriceAdapter:

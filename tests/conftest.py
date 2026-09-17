@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from investment_agent.shared.base_models import PriceSnapshot
+from investment_agent.domain.models import PriceSnapshot
 
 
 class FakeAgentClient:

@@ -3,8 +3,8 @@ defined in AssetAnalysisPlugin with fake price/agent dependencies injected."""
 
 from unittest.mock import AsyncMock
 
-from investment_agent.plugins.gold.plugin import GoldAnalysisPlugin
-from investment_agent.shared.base_models import Recommendation
+from investment_agent.domain.models import Recommendation
+from investment_agent.gateways.gold.plugin import GoldAnalysisPlugin
 
 
 async def test_analyze_merges_price_snapshot_and_agent_reasoning(

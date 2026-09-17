@@ -4,8 +4,8 @@ The API layer only ever talks to this registry, never to a concrete plugin
 class - that indirection is what keeps `/analyze/{asset_type}` generic.
 """
 
-from investment_agent.plugins.base import AssetAnalysisPlugin
-from investment_agent.shared.exceptions import PluginNotFoundError
+from investment_agent.gateways.base import AssetAnalysisPlugin
+from investment_agent.infrastructure.exceptions import PluginNotFoundError
 
 
 class PluginRegistry:

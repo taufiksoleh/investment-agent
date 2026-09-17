@@ -1,7 +1,7 @@
 """Tests for build_gold_prompt(): verifies the price is embedded using Rupiah
 formatting (never the raw "IDR" code) and the JSON output contract is present."""
 
-from investment_agent.plugins.gold.prompts import build_gold_prompt
+from investment_agent.gateways.gold.prompts import build_gold_prompt
 
 
 def test_prompt_formats_price_as_rupiah_not_idr_code(sample_price_snapshot) -> None:

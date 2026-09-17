@@ -11,14 +11,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from investment_agent.api.router import router
-from investment_agent.config import Settings, get_settings
-from investment_agent.plugins.gold.adapters import InternalGoldPriceAdapter
-from investment_agent.plugins.gold.plugin import GoldAnalysisPlugin
-from investment_agent.plugins.registry import PluginRegistry
-from investment_agent.shared.agent_client import ClaudeAgentClient
-from investment_agent.shared.exceptions import register_exception_handlers
-from investment_agent.shared.http_client import InternalApiClient
-from investment_agent.shared.logger import configure_logging
+from investment_agent.gateways.gold.adapters import InternalGoldPriceAdapter
+from investment_agent.gateways.gold.plugin import GoldAnalysisPlugin
+from investment_agent.gateways.registry import PluginRegistry
+from investment_agent.infrastructure.agent_client import ClaudeAgentClient
+from investment_agent.infrastructure.config import Settings, get_settings
+from investment_agent.infrastructure.exceptions import register_exception_handlers
+from investment_agent.infrastructure.http_client import InternalApiClient
+from investment_agent.infrastructure.logger import configure_logging
 
 
 def _build_registry(settings: Settings) -> PluginRegistry:

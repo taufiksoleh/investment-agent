@@ -5,11 +5,11 @@ Wires the gold-specific price adapter and prompt template into the generic
 data and "what" prompt, never "how" to run the analysis.
 """
 
-from investment_agent.plugins.base import AssetAnalysisPlugin
-from investment_agent.plugins.gold.adapters import InternalGoldPriceAdapter
-from investment_agent.plugins.gold.prompts import build_gold_prompt
-from investment_agent.shared.agent_client import ClaudeAgentClient
-from investment_agent.shared.base_models import PriceSnapshot
+from investment_agent.domain.models import PriceSnapshot
+from investment_agent.gateways.base import AssetAnalysisPlugin
+from investment_agent.gateways.gold.adapters import InternalGoldPriceAdapter
+from investment_agent.gateways.gold.prompts import build_gold_prompt
+from investment_agent.infrastructure.agent_client import ClaudeAgentClient
 
 
 class GoldAnalysisPlugin(AssetAnalysisPlugin):

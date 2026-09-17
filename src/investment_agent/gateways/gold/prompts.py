@@ -6,8 +6,8 @@ used only to explain price context (macro drivers, news, technical
 commentary), never to look up or second-guess the price itself.
 """
 
-from investment_agent.shared.base_models import PriceSnapshot
-from investment_agent.shared.formatting import format_rupiah
+from investment_agent.domain.models import PriceSnapshot
+from investment_agent.infrastructure.formatting import format_rupiah
 
 
 def _describe_change(change_pct: float | None) -> str:

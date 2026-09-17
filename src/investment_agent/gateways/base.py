@@ -10,9 +10,9 @@ import json
 import re
 from abc import ABC, abstractmethod
 
-from investment_agent.shared.agent_client import ClaudeAgentClient
-from investment_agent.shared.base_models import AssetAnalysis, PriceSnapshot
-from investment_agent.shared.exceptions import AgentResponseParsingError
+from investment_agent.domain.models import AssetAnalysis, PriceSnapshot
+from investment_agent.infrastructure.agent_client import ClaudeAgentClient
+from investment_agent.infrastructure.exceptions import AgentResponseParsingError
 
 # Models routinely wrap JSON answers in a markdown fence (```json ... ```)
 # even when told to return raw JSON; strip that before parsing.

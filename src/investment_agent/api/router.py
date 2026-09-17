@@ -8,8 +8,8 @@ requires touching this file.
 
 from fastapi import APIRouter, Depends, Request
 
-from investment_agent.plugins.registry import PluginRegistry
-from investment_agent.shared.base_models import AssetAnalysis
+from investment_agent.domain.models import AssetAnalysis
+from investment_agent.gateways.registry import PluginRegistry
 
 router = APIRouter()
 

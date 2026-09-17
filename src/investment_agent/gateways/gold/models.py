@@ -11,7 +11,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from investment_agent.shared.base_models import AssetAnalysis
+from investment_agent.domain.models import AssetAnalysis
 
 
 class GoldPriceEntry(BaseModel):
