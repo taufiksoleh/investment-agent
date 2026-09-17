@@ -1,8 +1,8 @@
-"""Generic schemas shared by the core app and every plugin.
+"""Entities shared by the core app and every gateway/use case.
 
 Nothing asset-specific belongs here. Any field a single asset class needs but
 others don't (e.g. a gold-only "spot vs futures spread") belongs in that
-plugin's own `models.py`, as a subclass of `AssetAnalysis`.
+gateway's own `models.py`, as a subclass of `AssetAnalysis`.
 """
 
 from datetime import datetime
@@ -22,9 +22,9 @@ class Recommendation(StrEnum):
 class PriceSnapshot(BaseModel):
     """A verified point-in-time price, always sourced from an internal adapter.
 
-    This is the hand-off point between "real data" and "reasoning": the base
-    plugin flow only ever gets price numbers from this model, never from the
-    Claude Agent SDK.
+    This is the hand-off point between "real data" and "reasoning": the
+    `Analyzable` use case only ever gets price numbers from this model, never
+    from the Claude Agent SDK.
     """
 
     price: float
@@ -34,7 +34,7 @@ class PriceSnapshot(BaseModel):
 
 
 class AssetAnalysis(BaseModel):
-    """Common analysis output every asset-class plugin must return.
+    """Common analysis output every asset gateway must return.
 
     The API response shape is identical across asset types on purpose - it's
     what lets `/analyze/{asset_type}` stay a single generic endpoint instead

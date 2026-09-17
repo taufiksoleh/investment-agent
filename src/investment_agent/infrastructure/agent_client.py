@@ -1,6 +1,6 @@
 """Generic wrapper around the Claude Agent SDK, used for reasoning only.
 
-Every plugin sends its own composed prompt through this single client instead
+Every use case sends its own composed prompt through this single client instead
 of importing the SDK directly. That keeps SDK/session/tool wiring in one
 place and makes it trivial to inject a fake in tests. This client is never a
 source of price data - callers must embed verified prices (from an internal
@@ -57,8 +57,9 @@ class ClaudeAgentClient:
         """Send `prompt` to the agent and return its concatenated text response.
 
         The response is returned as raw text; parsing it into a structured
-        `AssetAnalysis` is the base plugin flow's job (`plugins/base.py`), not
-        this client's - this class only knows how to talk to the SDK.
+        `AssetAnalysis` is the `Analyzable` use case's job
+        (`use_cases/analyze_asset.py`), not this client's - this class only
+        knows how to talk to the SDK.
         """
         options = self._build_options()
         chunks: list[str] = []

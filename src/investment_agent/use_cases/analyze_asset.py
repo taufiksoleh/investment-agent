@@ -1,9 +1,12 @@
-"""The contract every asset-class plugin must implement.
+"""The analysis use case: fetch a verified price, reason about it via the
+Claude Agent SDK, and merge both into one `AssetAnalysis`.
 
-This is the one file the core app and every plugin both depend on. It defines
-what a plugin IS (a slug + a way to get a price + a way to build a prompt) and
-what happens when it's analyzed - so adding a new asset class never requires
-touching the API layer, only writing a new plugin against this same contract.
+`Analyzable` is the port a gateway implements to opt into this use case - it
+extends the `AssetGateway` port (`get_current_price()`) with `build_prompt()`,
+and provides `analyze()` as the generic flow every asset class shares.
+`analyze()` itself is never overridden - it's what guarantees every asset
+class produces the same `AssetAnalysis` shape through the same steps, which
+is what lets `/analyze/{asset_type}` stay a single generic endpoint.
 """
 
 import json
@@ -19,12 +22,12 @@ from investment_agent.infrastructure.exceptions import AgentResponseParsingError
 _CODE_FENCE_RE = re.compile(r"^```(?:json)?\s*\n?(.*?)\n?```$", re.DOTALL)
 
 
-class AssetAnalysisPlugin(ABC):
-    """Base class for all asset-class plugins (gold, stock, mutual_fund, ...).
+class Analyzable(ABC):
+    """Mixin a gateway inherits from to support `/analyze/{asset_type}`.
 
     Subclasses supply "what" data to use and "what" prompt to reason with;
     they never override `analyze()` itself, which stays identical for every
-    asset class so the API layer can treat all plugins interchangeably.
+    asset class so the API layer can treat all gateways interchangeably.
     """
 
     #: Unique identifier used in the URL (`/analyze/{slug}`) and by the registry.
@@ -58,7 +61,7 @@ class AssetAnalysisPlugin(ABC):
     async def analyze(self) -> AssetAnalysis:
         """Run the generic analysis flow: fetch price -> build prompt -> reason -> merge.
 
-        Identical for every plugin by design - only `get_current_price()` and
+        Identical for every gateway by design - only `get_current_price()` and
         `build_prompt()` vary per asset class.
         """
         price_snapshot = await self.get_current_price()

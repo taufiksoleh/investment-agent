@@ -1,8 +1,8 @@
 """Generic async HTTP client for talking to internal APIs.
 
-Centralizes timeout/base-url/JSON handling so each plugin's adapter doesn't
+Centralizes timeout/base-url/JSON handling so each gateway's adapter doesn't
 configure its own `httpx.AsyncClient`. Contains no knowledge of what data any
-particular internal API returns - that parsing lives in the plugin's adapter.
+particular internal API returns - that parsing lives in the gateway's adapter.
 """
 
 import logging

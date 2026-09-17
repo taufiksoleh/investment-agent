@@ -5,7 +5,7 @@ import pytest
 import respx
 from httpx import Response
 
-from investment_agent.gateways.gold.adapters import InternalGoldPriceAdapter
+from investment_agent.gateways.gold.adapter import InternalGoldPriceAdapter
 from investment_agent.infrastructure.exceptions import UpstreamPriceUnavailableError
 from investment_agent.infrastructure.http_client import InternalApiClient
 

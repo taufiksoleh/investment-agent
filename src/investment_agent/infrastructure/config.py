@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # CLI subprocess expects, see agent_client.py) so it doesn't collide with
     # a developer's own ANTHROPIC_API_KEY set locally for the Claude Code CLI.
     anthropic_api_key: str = Field(default="", validation_alias="INVESTMENT_AGENT_ANTHROPIC_API_KEY")
-    # Defaults to BMoney's public bullion price API (the gold plugin's data
+    # Defaults to BMoney's public bullion price API (the gold gateway's data
     # source); override per-environment/asset-class needs via env var.
     internal_price_api_url: str = "https://api.bmoney.id"
     log_level: str = "INFO"
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Return a process-wide cached ``Settings`` instance.
 
-    Cached so env vars are parsed once and every module (config, plugins,
+    Cached so env vars are parsed once and every module (config, gateways,
     clients) shares the same values instead of re-reading the environment.
     """
     return Settings()

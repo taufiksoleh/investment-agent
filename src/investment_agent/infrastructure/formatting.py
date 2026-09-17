@@ -1,8 +1,8 @@
-"""Generic value-formatting helpers shared across asset-class plugins.
+"""Generic value-formatting helpers shared across asset gateways.
 
 Any asset priced in Rupiah (gold today; stock, mutual_fund later) needs the
 same currency formatting, so it lives here instead of being duplicated in
-each plugin's prompt module.
+each gateway's prompt module.
 """
 
 

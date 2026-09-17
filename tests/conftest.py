@@ -1,5 +1,5 @@
 """Shared test fixtures: fakes for the two external dependencies every
-plugin is injected with, so tests never hit a real internal API or the
+gateway is injected with, so tests never hit a real internal API or the
 Claude Agent SDK."""
 
 import json

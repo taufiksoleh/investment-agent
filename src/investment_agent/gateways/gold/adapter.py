@@ -1,7 +1,7 @@
-"""Adapter between the gold price API and the generic plugin flow.
+"""Adapter between the gold price API and the generic analysis use case.
 
-This is the ONLY place in the gold plugin allowed to know the price API's
-URL shape and payload format - `plugin.py` just calls `fetch_price()`.
+This is the ONLY place in the gold gateway allowed to know the price API's
+URL shape and payload format - `gateway.py` just calls `fetch_price()`.
 Currently backed by BMoney's public bullion price API
 (`GET https://api.bmoney.id/bullion/prices`), which is IDR-per-gram already,
 so no currency conversion is needed.
@@ -37,8 +37,8 @@ class InternalGoldPriceAdapter:
     async def fetch_price(self) -> PriceSnapshot:
         """Fetch daily bullion prices and normalize the latest one into a `PriceSnapshot`.
 
-        Normalizing here (instead of in the plugin) is what lets
-        `AssetAnalysisPlugin.analyze()` stay asset-agnostic: it only ever
+        Normalizing here (instead of in the gateway) is what lets
+        `Analyzable.analyze()` stay asset-agnostic: it only ever
         deals with `PriceSnapshot`, never the raw bullion API shape.
         """
         payload = await self._http_client.get_json(self._endpoint, params={"period": self._period})

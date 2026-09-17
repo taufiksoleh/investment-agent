@@ -4,7 +4,7 @@
 API payload exactly (`GET /bullion/prices?period=...`), so a change in that
 API only touches this file. `GoldAnalysis` extends the shared `AssetAnalysis`
 as the place to add gold-only output fields later, without affecting the
-base schema other plugins rely on.
+base schema other gateways rely on.
 """
 
 from datetime import datetime
