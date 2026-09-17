@@ -27,8 +27,10 @@ src/investment_agent/
                       each implementing the use-case ports against a real upstream
                       API, plus the registry that looks gateways up by slug.
   api/               # Controllers: FastAPI routes + middleware.
-  infrastructure/     # Frameworks & drivers: the Claude Agent SDK client, the
-                        internal HTTP client, structlog config, Settings.
+  infrastructure/     # Frameworks & drivers: the reasoning agent clients
+                        (Claude Agent SDK, Google ADK + DeepSeek) and the
+                        factory that picks between them, the internal HTTP
+                        client, structlog config, Settings.
 ```
 
 ## Request flow
@@ -56,10 +58,13 @@ use_cases/analyze_asset.py: Analyzable.analyze()   <- generic, same for every ga
         │       build_gold_prompt() composes a prompt embedding the verified
         │       price and asking for JSON-shaped reasoning back
         │
-        ├─ 3. await self._agent_client.run_analysis(prompt) -> infrastructure/agent_client.py
-        │       ClaudeAgentClient wraps the Claude Agent SDK (with the
-        │       WebSearch tool enabled) purely for REASONING - it never
-        │       supplies price numbers, only context/news/causal explanation
+        ├─ 3. await self._agent_client.run_analysis(prompt) -> infrastructure/agent_client_factory.py
+        │       build_agent_client(settings) returns whichever backend
+        │       Settings.agent_provider selects - AdkAgentClient (Google
+        │       ADK + DeepSeek via LiteLLM, default, no web search) or
+        │       ClaudeAgentClient (Claude Agent SDK, with WebSearch) -
+        │       purely for REASONING; it never supplies price numbers,
+        │       only context/news/causal explanation
         │
         └─ 4. self._parse_agent_response(price_snapshot, raw_response)
                 merges the verified price with the agent's JSON reasoning
@@ -117,6 +122,33 @@ A gateway author implements exactly two methods:
 `analyze()` itself is never overridden — it's what guarantees every asset
 class produces the same `AssetAnalysis` shape through the same steps, which
 is what lets `/analyze/{asset_type}` stay a single generic endpoint.
+
+`Analyzable.__init__` takes an `agent_client: ReasoningAgent`
+(`use_cases/reasoning_agent.py`) — the port for step 3 above:
+
+```python
+class ReasoningAgent(Protocol):
+    async def run_analysis(self, prompt: str) -> str: ...
+```
+
+Gateways and `Analyzable` only ever depend on this port, never on
+`ClaudeAgentClient` or `AdkAgentClient` directly — which backend actually
+implements it is decided once, in `infrastructure/agent_client_factory.py`,
+from `Settings.agent_provider`:
+
+- **`deepseek`** (default) — `AdkAgentClient`
+  (`infrastructure/adk_agent_client.py`), Google ADK's `LlmAgent` +
+  `InMemoryRunner`, with the model routed through LiteLLM to DeepSeek's
+  OpenAI-compatible API (`DEEPSEEK_API_KEY`). Much cheaper than Claude; has
+  no web search tool — ADK's built-in `google_search` grounding only works
+  with Gemini models, and wiring a separate search API for DeepSeek is out
+  of scope for now, so this backend reasons from the prompt text alone.
+- **`claude`** — `ClaudeAgentClient` (`infrastructure/agent_client.py`),
+  the Claude Agent SDK, with the `WebSearch` tool enabled
+  (`INVESTMENT_AGENT_ANTHROPIC_API_KEY`).
+
+Swapping providers is a one-line env var change (`AGENT_PROVIDER`); nothing
+in `gateways/`, `use_cases/`, or `api/` needs to know which one is active.
 
 Each use case is independent: adding a future one (e.g. a `NewsCapable`
 port for a `/analyze/{asset_type}/news` endpoint) means adding a new file

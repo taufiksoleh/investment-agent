@@ -10,10 +10,10 @@ from __future__ import annotations
 from investment_agent.domain.models import PriceSnapshot
 from investment_agent.gateways.mutual_fund.adapter import InternalMutualFundPriceAdapter
 from investment_agent.gateways.mutual_fund.prompts import build_mutual_fund_prompt
-from investment_agent.infrastructure.agent_client import ClaudeAgentClient
 from investment_agent.infrastructure.exceptions import UpstreamPriceUnavailableError
 from investment_agent.infrastructure.http_client import InternalApiClient
 from investment_agent.use_cases.analyze_asset import Analyzable
+from investment_agent.use_cases.reasoning_agent import ReasoningAgent
 
 
 class MutualFundGateway(Analyzable):
@@ -31,7 +31,7 @@ class MutualFundGateway(Analyzable):
 
     def __init__(
         self,
-        agent_client: ClaudeAgentClient,
+        agent_client: ReasoningAgent,
         price_adapter: InternalMutualFundPriceAdapter,
     ) -> None:
         super().__init__(agent_client)
@@ -41,7 +41,7 @@ class MutualFundGateway(Analyzable):
     def for_product(
         cls,
         product_id: int,
-        agent_client: ClaudeAgentClient,
+        agent_client: ReasoningAgent,
         http_client: InternalApiClient,
     ) -> MutualFundGateway:
         """Assemble a gateway for one BMoney product id.

@@ -4,7 +4,7 @@
 
 Clean-Architecture-style backend API for multi-asset investment analysis
 (starting with gold), combining verified prices from an internal API with
-reasoning from the Claude Agent SDK.
+reasoning from a pluggable LLM backend.
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the use-case/gateway
 contract, request flow, and how to add a new asset class.
@@ -12,7 +12,10 @@ contract, request flow, and how to add a new asset class.
 ## Stack
 
 - Python 3.12+, FastAPI (async)
-- Claude Agent SDK for reasoning + web search
+- Reasoning backend, switchable via `AGENT_PROVIDER`:
+  - `deepseek` (default) - Google ADK, routed through LiteLLM to DeepSeek's
+    OpenAI-compatible API. Much cheaper than Claude; no web search tool.
+  - `claude` - the Claude Agent SDK, with web search enabled.
 - httpx for internal price API calls
 - Pydantic v2 for schemas/validation
 - uv for dependency management
@@ -22,7 +25,9 @@ contract, request flow, and how to add a new asset class.
 ## Setup
 
 ```bash
-cp .env.example .env   # fill in INVESTMENT_AGENT_ANTHROPIC_API_KEY and INTERNAL_PRICE_API_URL
+cp .env.example .env   # fill in DEEPSEEK_API_KEY (or set AGENT_PROVIDER=claude
+                        # and fill in INVESTMENT_AGENT_ANTHROPIC_API_KEY) and
+                        # INTERNAL_PRICE_API_URL
 uv sync
 ```
 

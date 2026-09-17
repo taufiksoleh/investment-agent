@@ -1,6 +1,7 @@
 """Tests for mutual-fund-specific routes, exercised through the real app
 with the outbound BMoney calls mocked (real trimmed excerpts) and the
-agent client patched to avoid invoking the actual Claude Agent SDK."""
+agent client patched to avoid invoking the actual reasoning backend
+(AdkAgentClient/DeepSeek by default - see Settings.agent_provider)."""
 
 import json
 
@@ -8,7 +9,7 @@ import respx
 from fastapi.testclient import TestClient
 from httpx import Response
 
-from investment_agent.infrastructure.agent_client import ClaudeAgentClient
+from investment_agent.infrastructure.adk_agent_client import AdkAgentClient
 from investment_agent.main import app
 
 PRODUCT_DETAIL_RESPONSE = {
@@ -66,7 +67,7 @@ async def _fake_run_analysis(self, prompt: str) -> str:
 
 @respx.mock
 def test_analyze_specific_mutual_fund_product(monkeypatch) -> None:
-    monkeypatch.setattr(ClaudeAgentClient, "run_analysis", _fake_run_analysis)
+    monkeypatch.setattr(AdkAgentClient, "run_analysis", _fake_run_analysis)
     respx.get("https://api.bmoney.id/_exclusive/bmoney/mutual-fund/products/115").mock(
         return_value=Response(200, json=PRODUCT_DETAIL_RESPONSE)
     )
@@ -85,7 +86,7 @@ def test_analyze_specific_mutual_fund_product(monkeypatch) -> None:
 
 @respx.mock
 def test_analyze_unknown_product_returns_502(monkeypatch) -> None:
-    monkeypatch.setattr(ClaudeAgentClient, "run_analysis", _fake_run_analysis)
+    monkeypatch.setattr(AdkAgentClient, "run_analysis", _fake_run_analysis)
     # Detail and NAV history are fetched concurrently, so both must be mocked.
     respx.get("https://api.bmoney.id/_exclusive/bmoney/mutual-fund/products/999999").mock(
         return_value=Response(404, json={"detail": "not found"})

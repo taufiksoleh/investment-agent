@@ -1,5 +1,6 @@
-"""The analysis use case: fetch a verified price, reason about it via the
-Claude Agent SDK, and merge both into one `AssetAnalysis`.
+"""The analysis use case: fetch a verified price, reason about it via a
+`ReasoningAgent` (Claude Agent SDK, Google ADK + DeepSeek, ...), and merge
+both into one `AssetAnalysis`.
 
 `Analyzable` is the port a gateway implements to opt into this use case - it
 extends the `AssetGateway` port (`get_current_price()`) with `build_prompt()`,
@@ -14,8 +15,8 @@ import re
 from abc import ABC, abstractmethod
 
 from investment_agent.domain.models import AssetAnalysis, PriceSnapshot
-from investment_agent.infrastructure.agent_client import ClaudeAgentClient
 from investment_agent.infrastructure.exceptions import AgentResponseParsingError
+from investment_agent.use_cases.reasoning_agent import ReasoningAgent
 
 # Models routinely wrap JSON answers in a markdown fence (```json ... ```)
 # even when told to return raw JSON; strip that before parsing.
@@ -35,7 +36,7 @@ class Analyzable(ABC):
     #: Human-readable name, e.g. for logging or future UI use.
     display_name: str
 
-    def __init__(self, agent_client: ClaudeAgentClient) -> None:
+    def __init__(self, agent_client: ReasoningAgent) -> None:
         # Injected rather than constructed here, so tests can supply a fake.
         self._agent_client = agent_client
 

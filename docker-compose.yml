@@ -4,7 +4,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      INVESTMENT_AGENT_ANTHROPIC_API_KEY: ${INVESTMENT_AGENT_ANTHROPIC_API_KEY:?set INVESTMENT_AGENT_ANTHROPIC_API_KEY in your .env}
+      # Which key is actually required depends on AGENT_PROVIDER (deepseek
+      # by default); build_agent_client() fails fast with a clear error at
+      # startup if the selected provider's key is missing, so it isn't
+      # enforced here where both providers' vars would have to be optional.
+      AGENT_PROVIDER: ${AGENT_PROVIDER:-deepseek}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      INVESTMENT_AGENT_ANTHROPIC_API_KEY: ${INVESTMENT_AGENT_ANTHROPIC_API_KEY:-}
       INTERNAL_PRICE_API_URL: ${INTERNAL_PRICE_API_URL:-http://localhost:9000}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:

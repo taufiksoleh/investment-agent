@@ -8,8 +8,8 @@ Wires the gold-specific price adapter and prompt template into the generic
 from investment_agent.domain.models import PriceSnapshot
 from investment_agent.gateways.gold.adapter import InternalGoldPriceAdapter
 from investment_agent.gateways.gold.prompts import build_gold_prompt
-from investment_agent.infrastructure.agent_client import ClaudeAgentClient
 from investment_agent.use_cases.analyze_asset import Analyzable
+from investment_agent.use_cases.reasoning_agent import ReasoningAgent
 
 
 class GoldGateway(Analyzable):
@@ -20,7 +20,7 @@ class GoldGateway(Analyzable):
 
     def __init__(
         self,
-        agent_client: ClaudeAgentClient,
+        agent_client: ReasoningAgent,
         price_adapter: InternalGoldPriceAdapter,
     ) -> None:
         super().__init__(agent_client)
