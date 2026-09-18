@@ -1,6 +1,6 @@
 """The analysis use case: fetch a verified price, reason about it via a
-`ReasoningAgent` (Claude Agent SDK, Google ADK + DeepSeek, ...), and merge
-both into one `AssetAnalysis`.
+`ReasoningAgent` (Claude Agent SDK, Google ADK + any OpenAI-compatible
+endpoint, ...), and merge both into one `AssetAnalysis`.
 
 `Analyzable` is the port a gateway implements to opt into this use case - it
 extends the `AssetGateway` port (`get_current_price()`) with `build_prompt()`,

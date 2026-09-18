@@ -16,8 +16,10 @@ def build_agent_client(settings: Settings) -> ReasoningAgent:
     """Construct the configured reasoning agent client.
 
     `settings.agent_provider` selects the backend:
-    - "deepseek" (default): Google ADK, routed via LiteLLM to DeepSeek's
-      OpenAI-compatible API - much cheaper than Claude, no web search tool.
+    - "openai_compatible" (default): Google ADK, routed via LiteLLM to
+      whatever OpenAI-compatible endpoint `openai_compatible_base_url`
+      points at (DeepSeek, Qwen, Zhipu GLM, Moonshot Kimi, a self-hosted
+      vLLM/Ollama server, ...) - much cheaper than Claude, no web search tool.
     - "claude": the Claude Agent SDK, with web search enabled.
 
     Construction never validates the API key's presence (mirrors
@@ -28,4 +30,8 @@ def build_agent_client(settings: Settings) -> ReasoningAgent:
     """
     if settings.agent_provider == "claude":
         return ClaudeAgentClient(api_key=settings.anthropic_api_key)
-    return AdkAgentClient(api_key=settings.deepseek_api_key, model=settings.deepseek_model)
+    return AdkAgentClient(
+        api_key=settings.openai_compatible_api_key,
+        model=settings.openai_compatible_model,
+        base_url=settings.openai_compatible_base_url,
+    )

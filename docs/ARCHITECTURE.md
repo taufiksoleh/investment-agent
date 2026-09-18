@@ -61,10 +61,10 @@ use_cases/analyze_asset.py: Analyzable.analyze()   <- generic, same for every ga
         ├─ 3. await self._agent_client.run_analysis(prompt) -> infrastructure/agent_client_factory.py
         │       build_agent_client(settings) returns whichever backend
         │       Settings.agent_provider selects - AdkAgentClient (Google
-        │       ADK + DeepSeek via LiteLLM, default, no web search) or
-        │       ClaudeAgentClient (Claude Agent SDK, with WebSearch) -
-        │       purely for REASONING; it never supplies price numbers,
-        │       only context/news/causal explanation
+        │       ADK + any OpenAI-compatible endpoint via LiteLLM, default,
+        │       no web search) or ClaudeAgentClient (Claude Agent SDK, with
+        │       WebSearch) - purely for REASONING; it never supplies price
+        │       numbers, only context/news/causal explanation
         │
         └─ 4. self._parse_agent_response(price_snapshot, raw_response)
                 merges the verified price with the agent's JSON reasoning
@@ -136,13 +136,18 @@ Gateways and `Analyzable` only ever depend on this port, never on
 implements it is decided once, in `infrastructure/agent_client_factory.py`,
 from `Settings.agent_provider`:
 
-- **`deepseek`** (default) — `AdkAgentClient`
+- **`openai_compatible`** (default) — `AdkAgentClient`
   (`infrastructure/adk_agent_client.py`), Google ADK's `LlmAgent` +
-  `InMemoryRunner`, with the model routed through LiteLLM to DeepSeek's
-  OpenAI-compatible API (`DEEPSEEK_API_KEY`). Much cheaper than Claude; has
-  no web search tool — ADK's built-in `google_search` grounding only works
-  with Gemini models, and wiring a separate search API for DeepSeek is out
-  of scope for now, so this backend reasons from the prompt text alone.
+  `InMemoryRunner`, with the model routed through LiteLLM's generic
+  `openai/<model>` custom-provider form to whatever OpenAI-compatible
+  endpoint `OPENAI_COMPATIBLE_BASE_URL` points at — DeepSeek, Qwen, Zhipu
+  GLM, Moonshot Kimi, a self-hosted vLLM/Ollama server, or any other
+  provider that speaks the OpenAI chat-completions API
+  (`OPENAI_COMPATIBLE_API_KEY`, `OPENAI_COMPATIBLE_MODEL`). Much cheaper
+  than Claude; has no web search tool — ADK's built-in `google_search`
+  grounding only works with Gemini models, and wiring a separate search API
+  for an arbitrary endpoint is out of scope for now, so this backend
+  reasons from the prompt text alone.
 - **`claude`** — `ClaudeAgentClient` (`infrastructure/agent_client.py`),
   the Claude Agent SDK, with the `WebSearch` tool enabled
   (`INVESTMENT_AGENT_ANTHROPIC_API_KEY`).
