@@ -17,16 +17,17 @@ from investment_agent.gateways.gold.adapter import InternalGoldPriceAdapter
 from investment_agent.gateways.gold.gateway import GoldGateway
 from investment_agent.gateways.mutual_fund.gateway import MutualFundGateway
 from investment_agent.gateways.registry import GatewayRegistry
-from investment_agent.infrastructure.agent_client import ClaudeAgentClient
+from investment_agent.infrastructure.agent_client_factory import build_agent_client
 from investment_agent.infrastructure.config import Settings, get_settings
 from investment_agent.infrastructure.exceptions import register_exception_handlers
 from investment_agent.infrastructure.http_client import InternalApiClient
 from investment_agent.infrastructure.logger import configure_logging
+from investment_agent.use_cases.reasoning_agent import ReasoningAgent
 
 
 def _build_registry(
     settings: Settings,
-    agent_client: ClaudeAgentClient,
+    agent_client: ReasoningAgent,
     internal_api_client: InternalApiClient,
 ) -> GatewayRegistry:
     """Instantiate every gateway and register it, sharing the given infra clients."""
@@ -64,7 +65,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     settings = get_settings()
     configure_logging(settings.log_level)
-    app.state.agent_client = ClaudeAgentClient(api_key=settings.anthropic_api_key)
+    app.state.agent_client = build_agent_client(settings)
     app.state.internal_api_client = InternalApiClient(base_url=settings.internal_price_api_url)
     app.state.gateway_registry = _build_registry(
         settings, app.state.agent_client, app.state.internal_api_client
